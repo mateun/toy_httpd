@@ -40,6 +40,9 @@ void parse_http_req(const char* req, int size, req_line* req_info) {
 	char methodBuf[50];
 	char uriBuf[500];
 	char httpVersionBuf[50];
+	memset(methodBuf, 0, 50);
+	memset(uriBuf, 0, 500);
+	memset(httpVersionBuf, 0, 50);
 	int state = 0; // 0=method, 1=uri, 2=httpversion
 	char c = ' ';
 	while ((c = lineBuffer[i++]) != 0) {

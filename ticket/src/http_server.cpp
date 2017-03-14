@@ -19,7 +19,7 @@ extern void parse_http_req(const char* req, int size, req_line* out);
 
 // Starts a tcp server, listening for requests.
 // Incoming requests are passed to the callback function.
-void shttp_start(int port, void (*fn)(const char*, void*, int, int)) {
+void shttp_start(int port, void (*callback)(req_line*, void*, int, int)) {
 	printf("starting httpserver at port: %d\n", port);
 
 	static char buffer[256];
@@ -119,7 +119,7 @@ void shttp_start(int port, void (*fn)(const char*, void*, int, int)) {
 					printf("rl.method: %s\n", rl.method);
 					printf("rl.method uri: %s\n", rl.uri);
 					printf("rl.method http version: %s\n", rl.http_version);
-					//fn("hello from request: method=POST", buffer, 512, i);
+					callback(&rl, buffer, 512, i);
 					free(rl.method);
 					free(rl.uri);
 					free(rl.http_version);

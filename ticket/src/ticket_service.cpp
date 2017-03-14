@@ -7,12 +7,13 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <stdlib.h>
+#include "http_types.h"
 
-void my_callback(const char* method, void* data, int data_size, int client_nr) {
-	printf("msg in callback: %s, %d\n", method, client_nr);
+void my_callback(req_line* req_line, void* data, int data_size, int client_nr) {
+	printf("msg in callback: %s, %s, %d\n", req_line->method, req_line->uri, client_nr);
 }
 
-extern void shttp_start(int port, void (*fn)(const char*, void*, int, int)); 
+extern void shttp_start(int port, void (*callback)(req_line*, void*, int, int)); 
 
 
 int main(int argc, char** args) {
