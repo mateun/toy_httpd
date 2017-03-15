@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "http_types.h"
 
 
@@ -12,6 +13,12 @@ void mystrcpy(char *dest, int size, const char* src) {
 			break;
 	}
 }
+
+struct Line {
+	char* content = NULL;
+	Line* next = NULL;
+
+};
 
 void parse_http_req(const char* req, int size, req_line* req_info) {
 	printf("parsing request\n");
@@ -88,8 +95,77 @@ void parse_http_req(const char* req, int size, req_line* req_info) {
 	mystrcpy(req_info->method, methodCounter, methodBuf);
 	mystrcpy(req_info->uri, uriCounter, uriBuf);
 	mystrcpy(req_info->http_version, httpVCounter, httpVersionBuf);
-		
+
+	// split into lines
+	Line* first = new Line();
 	
-	printf("after strcpy: %s %s %s\n", req_info->method, req_info->uri, req_info->http_version);
+	// helper variables
+	char* pch = NULL;
+	char* input = (char*)req;
+	char* cl = NULL;
+	char* headerParts = NULL;
+	int lineCounter = 0;	
+
+	// move through all the lines
+	// and store them in linked list.
+	pch = strtok(input, "\r\n");
+	first->content = (char*) malloc(512);
+	strcpy(first->content, pch);
+
+
+	Line* last = NULL;
+	Line* second = NULL;
+	while (pch != NULL) {
+		printf("line: %s\n", pch);
+		pch = strtok(NULL, "\r\n");
+		lineCounter++;
+
+		// We are after the last line, 
+		// so we break out of the loop and
+		// we copy the former first entry
+		// to the last spot, so
+		// we have a clean reversed list, where
+		// the body content is first and the 
+		// request line (with method, uri and http version)
+		// is last.
+		if (pch == NULL) {
+			Line* firstcpy = new Line();
+			firstcpy->content = (char*) malloc(512);
+			strcpy(firstcpy->content, first->content);
+			second->next = firstcpy;
+			first = last;
+					
+			break;
+		}
+		
+	 	{
+			Line* l = new Line();
+			l->content = (char*) malloc(512);
+			strcpy(l->content, pch);
+			Line* temp = first->next;
+			first->next = l;
+			l->next = temp;
+			
+			if (lineCounter == 1) 
+				second = l;
+			else 
+				last = l;
+		}	
+
+	}
+
+	Line* l = first;
+	while (l != NULL) {
+		printf("line content: %s\n", l->content);
+		l = l->next;
+	}
+
+	
+	
+			
+		
+	// TODO: is there a content-length? what is the content-type?
+	// create a buffer with the content-length. 
+	// store the content in the buffer
 	
 }
